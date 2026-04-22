@@ -5,7 +5,10 @@
       "WebFetch",
       "Read",
       "Glob",
-      "Grep"
+      "Grep",
+      "Write",
+      "Edit",
+      "Bash"
     ]
   }
 }
