@@ -51,6 +51,30 @@
 
 ---
 
+### STEP 5：記事作成 & note下書き投稿
+
+`article.md` スキルの手順に従い、2種類の記事を作成してnoteに下書き投稿する。
+
+**5-1. マクロ分析記事の作成**
+- STEP 1の結果をもとに `article.md` の「記事①：マクロ分析記事」の構成で執筆する
+- `reports/YYYY-MM-DD_article_macro.md` に保存する
+- 以下のコマンドでnoteに下書き投稿する：
+  ```
+  python scripts/post_to_note.py reports/YYYY-MM-DD_article_macro.md
+  ```
+
+**5-2. 銘柄スクリーニング記事の作成**
+- STEP 2〜4の結果をもとに `article.md` の「記事②：銘柄スクリーニング記事」の構成で執筆する
+- `reports/YYYY-MM-DD_article_screening.md` に保存する
+- 以下のコマンドでnoteに下書き投稿する：
+  ```
+  python scripts/post_to_note.py reports/YYYY-MM-DD_article_screening.md
+  ```
+
+投稿に失敗した場合は3回リトライする。3回とも失敗した場合は記事ファイルの保存までを完了とし、投稿失敗をサマリーに記録して次のステップへ進む。
+
+---
+
 ## 完了時の出力
 
 全ステップ完了後、以下のサマリーを出力する：
@@ -64,6 +88,12 @@
 - reports/YYYY-MM-DD_evaluation.md
 - reports/YYYY-MM-DD_deepdive_XXXX.md
 - reports/YYYY-MM-DD_deepdive_YYYY.md
+- reports/YYYY-MM-DD_article_macro.md
+- reports/YYYY-MM-DD_article_screening.md
+
+## note下書き投稿
+- マクロ記事：（投稿URL または 失敗理由）
+- スクリーニング記事：（投稿URL または 失敗理由）
 
 ## 本日の投資環境
 （マクロ総合判断を1〜2行で）
