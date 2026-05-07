@@ -11,6 +11,8 @@ param(
 )
 
 $MaxRetry = 3
+$BranchDate = $Date -replace '-', ''
+$Branch = "research/$BranchDate"
 
 # -------------------------------------------------------
 # ユーティリティ
@@ -55,9 +57,27 @@ function Invoke-ClaudeStep {
     return $false
 }
 
+function Invoke-EnsureBranch {
+    $current = git rev-parse --abbrev-ref HEAD
+    if ($current -eq $Branch) {
+        Write-Host "  ブランチ確認: $Branch（チェックアウト済み）" -ForegroundColor DarkGray
+        return
+    }
+    $localExists  = git branch --list $Branch
+    $remoteExists = git ls-remote --heads origin $Branch
+    if ($localExists) {
+        git checkout $Branch
+    } elseif ($remoteExists) {
+        git checkout -b $Branch origin/$Branch
+    } else {
+        git checkout -b $Branch
+    }
+    if ($?) { Write-Success "ブランチ切替: $Branch" } else { Write-Fail "ブランチ作成失敗: $Branch"; exit 1 }
+}
+
 function Invoke-GitPush {
     param([int]$s)
-    Write-Host "  git push 実行中 (STEP ${s})..." -ForegroundColor DarkGray
+    Write-Host "  git push 実行中 (STEP ${s} → $Branch)..." -ForegroundColor DarkGray
     git add reports/ targets/
     $status = git status --porcelain
     if (-not $status) {
@@ -65,10 +85,13 @@ function Invoke-GitPush {
         return
     }
     git commit -m "Add daily research STEP${s}: ${Date}"
-    git pull --rebase origin main
-    if (-not $?) { Write-Fail "git pull 失敗 (STEP ${s})。手動確認が必要です。"; return }
-    git push origin main
-    if ($?) { Write-Success "git push 完了 (STEP ${s})" } else { Write-Fail "git push 失敗 (STEP ${s})" }
+    $remoteExists = git ls-remote --heads origin $Branch
+    if ($remoteExists) {
+        git pull --rebase origin $Branch
+        if (-not $?) { Write-Fail "git pull 失敗 (STEP ${s})。手動確認が必要です。"; return }
+    }
+    git push -u origin $Branch
+    if ($?) { Write-Success "git push 完了 (STEP ${s}) → $Branch" } else { Write-Fail "git push 失敗 (STEP ${s})" }
 }
 
 # -------------------------------------------------------
@@ -97,6 +120,12 @@ if ($Step -eq 0) {
     }
     Write-Host "開始STEP: $Step（未完了の最初のSTEPを自動検出）" -ForegroundColor DarkGray
 }
+
+# -------------------------------------------------------
+# ブランチ準備
+# -------------------------------------------------------
+
+Invoke-EnsureBranch
 
 # -------------------------------------------------------
 # STEP 1：マクロ分析
