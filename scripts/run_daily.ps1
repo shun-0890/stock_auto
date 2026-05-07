@@ -222,7 +222,7 @@ STEP 4（詳細調査）のみ実行してください。
 # -------------------------------------------------------
 
 if ($Step -le 5) {
-    Write-Step "STEP 5：記事作成 & note下書き投稿"
+    Write-Step "STEP 5：記事作成"
 
     if (Test-StepDone 5) {
         Write-Skip "記事ファイルは作成済み"
@@ -232,7 +232,7 @@ if ($Step -le 5) {
     } else {
         $prompt = @"
 実行日: $Date
-STEP 5（記事作成・note投稿）のみ実行してください。
+STEP 5（記事作成）のみ実行してください。
 
 前提ファイル（すべて作成済み）:
 - reports/${Date}_macro.md
@@ -240,10 +240,10 @@ STEP 5（記事作成・note投稿）のみ実行してください。
 - reports/${Date}_evaluation.md
 - reports/${Date}_deepdive_*.md
 
-.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してnoteに下書き投稿してください。
-- reports/${Date}_article_macro.md を作成 → note投稿
-- reports/${Date}_article_screening.md を作成 → note投稿
-完了後に終了してください。他のSTEPは実行しないでください。
+.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してください。
+- reports/${Date}_article_macro.md を作成
+- reports/${Date}_article_screening.md を作成
+note投稿は行わないでください。完了後に終了してください。他のSTEPは実行しないでください。
 "@
         $ok = Invoke-ClaudeStep 5 $prompt
         if (-not $ok) { Write-Fail "STEP 5 失敗。記事ファイルの保存状況を確認してください。"; exit 1 }
