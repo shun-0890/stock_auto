@@ -316,3 +316,8 @@ Write-Step "デイリーリサーチ完了：$Date"
 $files = Get-ChildItem "reports/${Date}_*.md" -ErrorAction SilentlyContinue
 Write-Host "生成ファイル一覧:"
 $files | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Green }
+
+# スマホ通知
+$notifBody = [System.Text.Encoding]::UTF8.GetBytes("株式調査ルーチン完了！ ($Date)")
+Invoke-WebRequest -Uri 'https://ntfy.sh/stock-auto-shun1' -Method POST -Body $notifBody -ContentType 'text/plain; charset=utf-8' -UseBasicParsing | Out-Null
+Write-Success "スマホ通知送信完了"
