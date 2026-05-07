@@ -65,6 +65,8 @@ function Invoke-GitPush {
         return
     }
     git commit -m "Add daily research STEP${s}: ${Date}"
+    git pull --rebase origin main
+    if (-not $?) { Write-Fail "git pull 失敗 (STEP ${s})。手動確認が必要です。"; return }
     git push origin main
     if ($?) { Write-Success "git push 完了 (STEP ${s})" } else { Write-Fail "git push 失敗 (STEP ${s})" }
 }
