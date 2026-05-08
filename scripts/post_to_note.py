@@ -8,13 +8,14 @@ note.com に記事を下書きとして投稿するスクリプト。
 環境変数（.env または環境変数で設定）:
     NOTE_EMAIL    : note.com のログインメールアドレス
     NOTE_PASSWORD : note.com のパスワード
-    HTTPS_PROXY   : プロキシURL（例: http://proxy.example.com:8080）
+    HTTPS_PROXY   : プロキシURL（任意）
 """
 
 import sys
 import os
 import json
 import requests
+from urllib.parse import unquote
 from pathlib import Path
 
 try:
@@ -26,7 +27,6 @@ except ImportError:
 NOTE_API_BASE = "https://note.com/api"
 SESSION_FILE = Path(__file__).parent / ".note_session.json"
 
-# ブラウザを模倣するデフォルトヘッダー
 DEFAULT_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -37,11 +37,11 @@ DEFAULT_HEADERS = {
     "Referer": "https://note.com/login",
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+    "X-Requested-With": "XMLHttpRequest",
 }
 
 
 def _get_proxies() -> dict | None:
-    """環境変数からプロキシ設定を読み込む。"""
     proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
     if proxy:
         return {"http": proxy, "https": proxy}
@@ -51,8 +51,13 @@ def _get_proxies() -> dict | None:
 def login(email: str, password: str) -> dict:
     """note.com にログインしてセッション情報を返す。"""
     resp = requests.post(
-        f"{NOTE_API_BASE}/v2/sessions",
-        json={"login": email, "password": password},
+        f"{NOTE_API_BASE}/v1/sessions/sign_in",
+        json={
+            "login": email,
+            "password": password,
+            "g_recaptcha_response": "",
+            "redirect_path": "https://note.com/",
+        },
         headers={**DEFAULT_HEADERS, "Content-Type": "application/json"},
         proxies=_get_proxies(),
         timeout=30,
@@ -66,7 +71,6 @@ def login(email: str, password: str) -> dict:
 
 
 def load_session() -> dict | None:
-    """保存済みセッションを読み込む。"""
     if SESSION_FILE.exists():
         return json.loads(SESSION_FILE.read_text(encoding="utf-8"))
     return None
@@ -77,7 +81,6 @@ def save_session(session: dict):
 
 
 def verify_session(session: dict) -> bool:
-    """セッションが有効かどうか確認する。"""
     resp = requests.get(
         f"{NOTE_API_BASE}/v2/me",
         cookies=session["cookies"],
@@ -89,7 +92,6 @@ def verify_session(session: dict) -> bool:
 
 
 def get_session(email: str, password: str) -> dict:
-    """有効なセッションを取得する（キャッシュ優先）。"""
     session = load_session()
     if session and verify_session(session):
         print("既存セッションを使用します")
@@ -102,45 +104,78 @@ def get_session(email: str, password: str) -> dict:
     return session
 
 
-def parse_article(file_path: Path) -> tuple[str, str]:
-    """Markdownファイルからタイトルと本文を抽出する。"""
-    text = file_path.read_text(encoding="utf-8")
+def _xsrf_token(cookies: dict) -> str:
+    """Cookie の XSRF-TOKEN を URL デコードして返す。"""
+    return unquote(cookies.get("XSRF-TOKEN", ""))
 
+
+def parse_article(file_path: Path) -> tuple[str, str]:
+    text = file_path.read_text(encoding="utf-8")
     lines = text.splitlines()
-    title = ""
-    body_start = 0
+    title, body_start = "", 0
     for i, line in enumerate(lines):
         stripped = line.strip()
         if stripped.startswith("# "):
             title = stripped[2:].strip()
             body_start = i + 1
             break
-
     if not title:
         title = file_path.stem
-
     body = "\n".join(lines[body_start:]).strip()
     return title, body
 
 
 def create_draft(session: dict, title: str, body: str) -> dict:
-    """note.com に下書きを作成する。"""
-    resp = requests.post(
+    """note.com に下書きを作成する（2ステップ）。"""
+    cookies = session["cookies"]
+    xsrf = _xsrf_token(cookies)
+    proxies = _get_proxies()
+    headers_post = {
+        **DEFAULT_HEADERS,
+        "Content-Type": "application/json",
+        "Referer": "https://editor.note.com/",
+        "X-XSRF-TOKEN": xsrf,
+    }
+
+    # Step 1: ノートの骨組みを作成
+    resp1 = requests.post(
         f"{NOTE_API_BASE}/v1/text_notes",
+        json={"template_key": None},
+        cookies=cookies,
+        headers=headers_post,
+        proxies=proxies,
+        timeout=30,
+    )
+    if resp1.status_code not in (200, 201):
+        raise RuntimeError(f"ノート作成失敗: {resp1.status_code} {resp1.text}")
+
+    note_data = resp1.json().get("data", {})
+    note_id = note_data.get("id")
+    note_key = note_data.get("key", "")
+    if not note_id:
+        raise RuntimeError(f"note_id が取得できませんでした: {resp1.text}")
+
+    # Step 2: 下書き保存
+    resp2 = requests.post(
+        f"{NOTE_API_BASE}/v1/text_notes/draft_save",
+        params={"id": note_id, "is_temp_saved": "true"},
         json={
             "name": title,
             "body": body,
-            "status": "draft",
-            "price": 0,
+            "body_length": len(body),
+            "index": False,
+            "is_lead_form": False,
+            "image_keys": [],
         },
-        cookies=session["cookies"],
-        headers={**DEFAULT_HEADERS, "Content-Type": "application/json"},
-        proxies=_get_proxies(),
+        cookies=cookies,
+        headers=headers_post,
+        proxies=proxies,
         timeout=30,
     )
-    if resp.status_code not in (200, 201):
-        raise RuntimeError(f"下書き作成失敗: {resp.status_code} {resp.text}")
-    return resp.json()
+    if resp2.status_code not in (200, 201):
+        raise RuntimeError(f"下書き保存失敗: {resp2.status_code} {resp2.text}")
+
+    return {"key": note_key, "id": note_id}
 
 
 def main():
@@ -157,7 +192,6 @@ def main():
     password = os.environ.get("NOTE_PASSWORD")
     if not email or not password:
         print("環境変数 NOTE_EMAIL / NOTE_PASSWORD が設定されていません。")
-        print(".env ファイルに記載するか、環境変数に設定してください。")
         sys.exit(1)
 
     print(f"対象ファイル: {article_path}")
@@ -165,17 +199,11 @@ def main():
     print(f"タイトル: {title}")
     print(f"本文文字数: {len(body)} 文字")
 
-    proxy = _get_proxies()
-    if proxy:
-        print(f"プロキシ使用: {list(proxy.values())[0]}")
-
     session = get_session(email, password)
     result = create_draft(session, title, body)
 
-    note_data = result.get("data", {})
-    note_key = note_data.get("key", "")
+    note_key = result.get("key", "")
     note_url = f"https://note.com/drafts/{note_key}" if note_key else "（URLの取得に失敗）"
-
     print(f"\n下書き作成完了！")
     print(f"URL: {note_url}")
     return note_url
