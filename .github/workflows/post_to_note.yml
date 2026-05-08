@@ -1,0 +1,30 @@
+name: note.com 下書き投稿
+
+on:
+  push:
+    branches: [main]
+    paths: ['reports/**_article_*.md']
+
+jobs:
+  post-to-note:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests python-dotenv
+
+      - name: 記事をnoteに投稿
+        env:
+          NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
+          NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
+        run: |
+          FILES=$(git diff --name-only HEAD~1 HEAD -- reports/ | grep '_article_' || true)
+          for FILE in $FILES; do
+            [ -f "$FILE" ] && python scripts/post_to_note.py "$FILE"
+          done
