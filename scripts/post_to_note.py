@@ -8,11 +8,11 @@ note.com に記事を下書きとして投稿するスクリプト。
 環境変数（.env または環境変数で設定）:
     NOTE_EMAIL    : note.com のログインメールアドレス
     NOTE_PASSWORD : note.com のパスワード
+    HTTPS_PROXY   : プロキシURL（例: http://proxy.example.com:8080）
 """
 
 import sys
 import os
-import re
 import json
 import requests
 from pathlib import Path
@@ -26,13 +26,36 @@ except ImportError:
 NOTE_API_BASE = "https://note.com/api"
 SESSION_FILE = Path(__file__).parent / ".note_session.json"
 
+# ブラウザを模倣するデフォルトヘッダー
+DEFAULT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Origin": "https://note.com",
+    "Referer": "https://note.com/login",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+}
+
+
+def _get_proxies() -> dict | None:
+    """環境変数からプロキシ設定を読み込む。"""
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if proxy:
+        return {"http": proxy, "https": proxy}
+    return None
+
 
 def login(email: str, password: str) -> dict:
     """note.com にログインしてセッション情報を返す。"""
     resp = requests.post(
         f"{NOTE_API_BASE}/v2/sessions",
         json={"login": email, "password": password},
-        headers={"Content-Type": "application/json"},
+        headers={**DEFAULT_HEADERS, "Content-Type": "application/json"},
+        proxies=_get_proxies(),
+        timeout=30,
     )
     if resp.status_code != 200:
         raise RuntimeError(f"ログイン失敗: {resp.status_code} {resp.text}")
@@ -58,6 +81,9 @@ def verify_session(session: dict) -> bool:
     resp = requests.get(
         f"{NOTE_API_BASE}/v2/me",
         cookies=session["cookies"],
+        headers=DEFAULT_HEADERS,
+        proxies=_get_proxies(),
+        timeout=30,
     )
     return resp.status_code == 200
 
@@ -80,7 +106,6 @@ def parse_article(file_path: Path) -> tuple[str, str]:
     """Markdownファイルからタイトルと本文を抽出する。"""
     text = file_path.read_text(encoding="utf-8")
 
-    # 1行目の `# タイトル` をタイトルとして使用
     lines = text.splitlines()
     title = ""
     body_start = 0
@@ -88,12 +113,11 @@ def parse_article(file_path: Path) -> tuple[str, str]:
         stripped = line.strip()
         if stripped.startswith("# "):
             title = stripped[2:].strip()
-            # 【YYYY/MM/DD】などのプレフィックスをそのまま使う
             body_start = i + 1
             break
 
     if not title:
-        title = file_path.stem  # ファイル名をフォールバック
+        title = file_path.stem
 
     body = "\n".join(lines[body_start:]).strip()
     return title, body
@@ -110,7 +134,9 @@ def create_draft(session: dict, title: str, body: str) -> dict:
             "price": 0,
         },
         cookies=session["cookies"],
-        headers={"Content-Type": "application/json"},
+        headers={**DEFAULT_HEADERS, "Content-Type": "application/json"},
+        proxies=_get_proxies(),
+        timeout=30,
     )
     if resp.status_code not in (200, 201):
         raise RuntimeError(f"下書き作成失敗: {resp.status_code} {resp.text}")
@@ -138,6 +164,10 @@ def main():
     title, body = parse_article(article_path)
     print(f"タイトル: {title}")
     print(f"本文文字数: {len(body)} 文字")
+
+    proxy = _get_proxies()
+    if proxy:
+        print(f"プロキシ使用: {list(proxy.values())[0]}")
 
     session = get_session(email, password)
     result = create_draft(session, title, body)

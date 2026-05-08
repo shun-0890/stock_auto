@@ -1,0 +1,48 @@
+name: note.com 下書き投稿
+
+on:
+  push:
+    branches: [main]
+    paths: ['reports/**_article_*.md']
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '投稿する記事の日付 (YYYY-MM-DD)'
+        required: false
+        default: ''
+
+jobs:
+  post-to-note:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests python-dotenv
+
+      - name: 記事をnoteに投稿
+        env:
+          NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
+          NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
+        run: |
+          # 手動実行の場合は指定日付（省略時は最新）のファイルを対象にする
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            DATE="${{ github.event.inputs.date }}"
+            FILES=$(ls reports/${DATE}_article_*.md 2>/dev/null || true)
+          else
+            FILES=$(git diff --name-only HEAD~1 HEAD -- reports/ | grep '_article_' || true)
+          fi
+
+          if [ -z "$FILES" ]; then
+            echo "投稿対象のファイルが見つかりませんでした"
+            exit 0
+          fi
+
+          for FILE in $FILES; do
+            [ -f "$FILE" ] && python scripts/post_to_note.py "$FILE"
+          done
