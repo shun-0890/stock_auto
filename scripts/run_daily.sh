@@ -5,6 +5,8 @@
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
 DATE=${1:-$(date +%Y-%m-%d)}
+BRANCH_DATE="${DATE//-/}"
+BRANCH="claude/research-${BRANCH_DATE}"
 MAX_RETRY=3
 
 # -------------------------------------------------------
@@ -51,7 +53,8 @@ git_push() {
         return 0
     fi
     git commit -m "Add daily research STEP${step}: ${DATE}"
-    git push origin main && log_success "git push 完了 (STEP ${step})" || log_fail "git push 失敗 (STEP ${step})"
+    git pull --rebase origin "${BRANCH}" 2>/dev/null || true
+    git push origin "${BRANCH}" && log_success "git push 完了 (STEP ${step})" || log_fail "git push 失敗 (STEP ${step})"
 }
 
 # -------------------------------------------------------
@@ -66,6 +69,15 @@ if [ ! -f "$WATCHLIST" ]; then
     exit 1
 fi
 log_success "watchlist確認: $WATCHLIST"
+
+# ブランチ作成 or チェックアウト
+if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+    git checkout "${BRANCH}"
+    log_success "既存ブランチにチェックアウト: ${BRANCH}"
+else
+    git checkout -b "${BRANCH}"
+    log_success "ブランチ作成: ${BRANCH}"
+fi
 
 # -------------------------------------------------------
 # STEP 1：マクロ分析
@@ -158,13 +170,13 @@ fi
 # STEP 5：記事作成・note投稿
 # -------------------------------------------------------
 
-log_step "STEP 5：記事作成 & note下書き投稿"
+log_step "STEP 5：記事作成"
 if step_done 5; then
     log_skip "記事ファイルは作成済み"
 else
     step_done 4 || { log_fail "deepdiveファイルが存在しません。STEP 4から再実行してください。"; exit 1; }
     run_step 5 "実行日: ${DATE}
-STEP 5（記事作成・note投稿）のみ実行してください。
+STEP 5（記事作成）のみ実行してください。
 
 前提ファイル（すべて作成済み）:
 - reports/${DATE}_macro.md
@@ -172,13 +184,38 @@ STEP 5（記事作成・note投稿）のみ実行してください。
 - reports/${DATE}_evaluation.md
 - reports/${DATE}_deepdive_*.md
 
-.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してnoteに下書き投稿してください。
-- reports/${DATE}_article_macro.md を作成 → note投稿
-- reports/${DATE}_article_screening.md を作成 → note投稿
+.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してください（note投稿は不要）。
+- reports/${DATE}_article_macro.md を作成
+- reports/${DATE}_article_screening.md を作成
 完了後に終了してください。他のSTEPは実行しないでください。" || { log_fail "STEP 5 失敗。記事ファイルの保存状況を確認してください。"; }
     log_success "STEP 5 完了"
     git_push 5
 fi
+
+# -------------------------------------------------------
+# PR作成
+# -------------------------------------------------------
+
+log_step "PRを作成：${BRANCH} → main"
+PR_BODY="## デイリーリサーチ ${DATE}
+
+### 生成ファイル
+$(ls reports/${DATE}_*.md 2>/dev/null | while read f; do echo "- $(basename "$f")"; done)
+
+🤖 Generated with Claude Code"
+
+gh pr create \
+    --title "デイリーリサーチ: ${DATE}" \
+    --body "${PR_BODY}" \
+    --base main \
+    --head "${BRANCH}" \
+    && log_success "PR作成完了" || log_fail "PR作成失敗（手動で作成してください）"
+
+# スマホ通知
+curl -s -X POST https://ntfy.sh/stock-auto-shun1 \
+    -H "Content-Type: text/plain; charset=utf-8" \
+    -d "株式調査ルーチン完了！ PR作成まで完了 (${DATE})" \
+    && log_success "スマホ通知送信完了" || log_fail "通知送信失敗"
 
 # -------------------------------------------------------
 # 完了サマリー
