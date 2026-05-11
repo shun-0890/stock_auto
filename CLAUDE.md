@@ -48,14 +48,17 @@
 ## デイリーリサーチの実行手順
 
 ### STEP 0: 事前準備
-以下のコマンドで認証情報とgit設定を行う：
+`.env` に以下を記載する（初回のみ）：
 ```
-export GITHUB_PAT=＜GitHubのPersonal Access Token＞
-echo "NOTE_EMAIL=shun1320@gmail.com" > .env
-echo "NOTE_PASSWORD=Ship1320" >> .env
+NOTE_EMAIL=shun1320@gmail.com
+NOTE_PASSWORD=Ship1320
+GITHUB_PAT=＜GitHubのPersonal Access Token＞
+```
+
+git のユーザー設定（初回のみ）：
+```
 git config user.email shun1320@gmail.com
 git config user.name shun-0890
-git remote set-url origin https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git
 ```
 
 ### STEP 1: run_daily.sh を実行

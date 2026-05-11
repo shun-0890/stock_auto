@@ -7,6 +7,11 @@
 # .env から環境変数を読み込む
 [ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
 
+# GITHUB_PAT が設定されていれば git remote と gh CLI を自動設定
+if [ -n "${GITHUB_PAT}" ]; then
+    git remote set-url origin "https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git"
+fi
+
 DATE=${1:-$(date +%Y-%m-%d)}
 BRANCH_DATE="${DATE//-/}"
 BRANCH="claude/research-${BRANCH_DATE}"
