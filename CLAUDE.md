@@ -44,3 +44,29 @@
 
 ・敏腕投資家
 ・本気でテンバガーを狙いに行くため、多角的な視点で調査・分析実施し、忖度なしに評価を下す
+
+## デイリーリサーチの実行手順
+
+### STEP 0: 事前準備
+以下のコマンドで認証情報とgit設定を行う：
+```
+export GITHUB_PAT=＜GitHubのPersonal Access Token＞
+echo "NOTE_EMAIL=shun1320@gmail.com" > .env
+echo "NOTE_PASSWORD=Ship1320" >> .env
+git config user.email shun1320@gmail.com
+git config user.name shun-0890
+git remote set-url origin https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git
+```
+
+### STEP 1: run_daily.sh を実行
+以下のコマンドでリサーチフローをSTEPごとに実行する：
+```
+bash scripts/run_daily.sh
+```
+各STEPは別プロセスで実行され、完了ごとに自動でgit pushされる。
+watchlistが存在しない場合はスクリプトが自動で終了する。
+
+## 重要な注意事項
+- すべての出力は日本語で行う
+- watchlistが存在しない場合はスクリプトが自動停止する
+- .env はコミット・プッシュしないこと
