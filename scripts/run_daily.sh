@@ -63,6 +63,17 @@ git_push() {
 
 log_step "デイリーリサーチ開始：$DATE"
 
+# gh CLIのインストールと認証
+if ! which gh &>/dev/null; then
+    echo "  gh CLI が見つかりません。インストールします..."
+    sudo apt-get install -y gh &>/dev/null && log_success "gh CLI インストール完了" || log_fail "gh CLI インストール失敗"
+fi
+if [ -n "${GITHUB_PAT}" ]; then
+    gh auth login --with-token <<< "${GITHUB_PAT}" 2>/dev/null && log_success "gh 認証完了" || true
+elif ! gh auth status &>/dev/null; then
+    log_fail "gh 未認証。GITHUB_PAT 環境変数を設定するか、事前に gh auth login を実行してください。"
+fi
+
 WATCHLIST="targets/${DATE}_watchlist.csv"
 if [ ! -f "$WATCHLIST" ]; then
     log_fail "$WATCHLIST が見つかりません。watchlistを作成してから再実行してください。"
