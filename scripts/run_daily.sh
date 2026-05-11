@@ -4,6 +4,9 @@
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
+# .env から環境変数を読み込む
+[ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
+
 DATE=${1:-$(date +%Y-%m-%d)}
 BRANCH_DATE="${DATE//-/}"
 BRANCH="claude/research-${BRANCH_DATE}"
