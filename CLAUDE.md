@@ -44,3 +44,32 @@
 
 ・敏腕投資家
 ・本気でテンバガーを狙いに行くため、多角的な視点で調査・分析実施し、忖度なしに評価を下す
+
+## デイリーリサーチの実行手順
+
+### STEP 0: 事前準備
+`.env` に以下を記載する（初回のみ）：
+```
+NOTE_EMAIL=shun1320@gmail.com
+NOTE_PASSWORD=Ship1320
+GITHUB_PAT=＜GitHubのPersonal Access Token＞
+```
+
+git のユーザー設定（初回のみ）：
+```
+git config user.email shun1320@gmail.com
+git config user.name shun-0890
+```
+
+### STEP 1: run_daily.sh を実行
+以下のコマンドでリサーチフローをSTEPごとに実行する：
+```
+bash scripts/run_daily.sh
+```
+各STEPは別プロセスで実行され、完了ごとに自動でgit pushされる。
+watchlistが存在しない場合はスクリプトが自動で終了する。
+
+## 重要な注意事項
+- すべての出力は日本語で行う
+- watchlistが存在しない場合はスクリプトが自動停止する
+- .env はコミット・プッシュしないこと

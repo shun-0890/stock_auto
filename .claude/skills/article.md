@@ -260,21 +260,3 @@ https://note.com/takuminatoushi/n/n63c9cb0d5219
 ```
 
 
----
-
-## note への下書き投稿
-
-記事ファイルを保存した後、以下のコマンドを実行して note.com に下書きとして投稿する。
-
-```bash
-python scripts/post_to_note.py reports/YYYY-MM-DD_article_macro.md
-python scripts/post_to_note.py reports/YYYY-MM-DD_article_screening.md
-```
-
-**初回のみ：** プロジェクトルートに `.env` ファイルを作成し、note.com の認証情報を設定する。
-```
-NOTE_EMAIL=your_email@example.com
-NOTE_PASSWORD=your_password
-```
-
-投稿後に下書きURLが表示されるので、note.com の編集画面で最終確認してから公開する。

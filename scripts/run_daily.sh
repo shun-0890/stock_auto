@@ -4,6 +4,14 @@
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
+# .env から環境変数を読み込む
+[ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
+
+# GITHUB_PAT が設定されていれば git remote と gh CLI を自動設定
+if [ -n "${GITHUB_PAT}" ]; then
+    git remote set-url origin "https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git"
+fi
+
 DATE=${1:-$(date +%Y-%m-%d)}
 BRANCH_DATE="${DATE//-/}"
 BRANCH="claude/research-${BRANCH_DATE}"
@@ -62,6 +70,17 @@ git_push() {
 # -------------------------------------------------------
 
 log_step "デイリーリサーチ開始：$DATE"
+
+# gh CLIのインストールと認証
+if ! which gh &>/dev/null; then
+    echo "  gh CLI が見つかりません。インストールします..."
+    sudo apt-get install -y gh &>/dev/null && log_success "gh CLI インストール完了" || log_fail "gh CLI インストール失敗"
+fi
+if [ -n "${GITHUB_PAT}" ]; then
+    gh auth login --with-token <<< "${GITHUB_PAT}" 2>/dev/null && log_success "gh 認証完了" || true
+elif ! gh auth status &>/dev/null; then
+    log_fail "gh 未認証。GITHUB_PAT 環境変数を設定するか、事前に gh auth login を実行してください。"
+fi
 
 WATCHLIST="targets/${DATE}_watchlist.csv"
 if [ ! -f "$WATCHLIST" ]; then
