@@ -3,6 +3,8 @@
 # 使い方:
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
+#   bash scripts/run_daily.sh --no-pr          # PR作成をスキップ
+#   bash scripts/run_daily.sh 2026-04-24 --no-pr
 
 # .env から環境変数を読み込む
 [ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
@@ -15,7 +17,17 @@ fi
 GITHUB_OWNER="shun-0890"
 GITHUB_REPO="stock_auto"
 
-DATE=${1:-$(date +%Y-%m-%d)}
+# 引数パース
+NO_PR=false
+DATE_ARG=""
+for arg in "$@"; do
+    if [ "$arg" = "--no-pr" ]; then
+        NO_PR=true
+    elif [[ "$arg" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        DATE_ARG="$arg"
+    fi
+done
+DATE=${DATE_ARG:-$(date +%Y-%m-%d)}
 BRANCH_DATE="${DATE//-/}"
 BRANCH="claude/research-${BRANCH_DATE}"
 MAX_RETRY=3
@@ -212,35 +224,42 @@ fi
 # PR作成
 # -------------------------------------------------------
 
-log_step "PRを作成：${BRANCH} → main"
+if [ "$NO_PR" = false ]; then
+    log_step "PRを作成：${BRANCH} → main"
 
-FILE_LIST=$(ls reports/${DATE}_*.md 2>/dev/null | while read f; do echo "- $(basename "$f")"; done)
-PR_BODY="## デイリーリサーチ ${DATE}\n\n### 生成ファイル\n${FILE_LIST}\n\n🤖 Generated with Claude Code"
+    FILE_LIST=$(ls reports/${DATE}_*.md 2>/dev/null | while read f; do echo "- $(basename "$f")"; done)
+    PR_BODY="## デイリーリサーチ ${DATE}\n\n### 生成ファイル\n${FILE_LIST}\n\n🤖 Generated with Claude Code"
 
-PR_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-    "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/pulls" \
-    -H "Authorization: Bearer ${GITHUB_PAT}" \
-    -H "Accept: application/vnd.github+json" \
-    -H "X-GitHub-Api-Version: 2022-11-28" \
-    -d "$(jq -n \
-        --arg title "デイリーリサーチ: ${DATE}" \
-        --arg body "$(printf '%b' "${PR_BODY}")" \
-        --arg head "${BRANCH}" \
-        '{title: $title, body: $body, head: $head, base: "main"}')")
+    PR_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+        "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/pulls" \
+        -H "Authorization: Bearer ${GITHUB_PAT}" \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -d "$(jq -n \
+            --arg title "デイリーリサーチ: ${DATE}" \
+            --arg body "$(printf '%b' "${PR_BODY}")" \
+            --arg head "${BRANCH}" \
+            '{title: $title, body: $body, head: $head, base: "main"}')")
 
-HTTP_CODE=$(echo "${PR_RESPONSE}" | tail -1)
-PR_URL=$(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.html_url // empty')
+    HTTP_CODE=$(echo "${PR_RESPONSE}" | tail -1)
+    PR_URL=$(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.html_url // empty')
 
-if [ "${HTTP_CODE}" = "201" ] && [ -n "${PR_URL}" ]; then
-    log_success "PR作成完了: ${PR_URL}"
+    if [ "${HTTP_CODE}" = "201" ] && [ -n "${PR_URL}" ]; then
+        log_success "PR作成完了: ${PR_URL}"
+    else
+        log_fail "PR作成失敗 (HTTP ${HTTP_CODE}): $(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.message // empty')"
+    fi
+
+    NOTIFY_MSG="株式調査ルーチン完了！ PR作成まで完了 (${DATE})"
 else
-    log_fail "PR作成失敗 (HTTP ${HTTP_CODE}): $(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.message // empty')"
+    log_skip "PR作成スキップ（--no-pr）"
+    NOTIFY_MSG="株式調査ルーチン完了！ 調査・記事作成まで完了 (${DATE})"
 fi
 
 # スマホ通知
 curl -s -X POST https://ntfy.sh/stock-auto-shun1 \
     -H "Content-Type: text/plain; charset=utf-8" \
-    -d "株式調査ルーチン完了！ PR作成まで完了 (${DATE})" \
+    -d "${NOTIFY_MSG}" \
     && log_success "スマホ通知送信完了" || log_fail "通知送信失敗"
 
 # -------------------------------------------------------
