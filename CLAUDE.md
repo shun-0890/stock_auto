@@ -47,32 +47,28 @@
 
 ## デイリーリサーチの実行手順
 
-### STEP 0: 事前準備（初回のみ）
-認証ファイルをホームディレクトリに作成する（リポジトリ外なのでgitに入らない）：
+### STEP 0: 事前準備（Claudeが自動実行）
+**Claudeは毎セッション開始時に以下を必ず実行すること：**
+
+1. `~/.stock_auto_credentials` の存在を確認する
+2. ファイルが存在しない場合、以下の内容で作成する（PATはユーザーのメッセージ内の値を使用）：
 ```
 cat > ~/.stock_auto_credentials << 'EOF'
-export GH_PAT=<GitHubのPersonal Access Token>
+export GH_PAT=<ユーザーメッセージ内のGitHub PAT>
 export NOTE_EMAIL=shun1320@gmail.com
-export NOTE_PASSWORD=<note.comパスワード>
+export NOTE_PASSWORD=Ship1320
 EOF
 chmod 600 ~/.stock_auto_credentials
 ```
-
-git のユーザー設定（初回のみ）：
+3. git設定を行う：
 ```
 git config user.email shun1320@gmail.com
 git config user.name shun-0890
+git remote set-url origin https://shun-0890:<GH_PAT>@github.com/shun-0890/stock_auto.git
 ```
 
-### STEP 1: watchlist を push してワークフローを起動
-`targets/YYYY-MM-DD_watchlist.csv` を作成して main ブランチに push すると、
-GitHub Actions が自動でデイリーリサーチを実行する。
-
-手動実行する場合は GitHub の Actions タブから `デイリーリサーチ` を選んで
-`Run workflow` を押す。
-
-### CCRセッションから手動実行する場合
-以下のコマンドでリサーチフローをSTEPごとに実行する：
+### STEP 1: デイリーリサーチ実行
+watchlist（`targets/YYYY-MM-DD_watchlist.csv`）が存在する状態で実行：
 ```
 bash scripts/run_daily.sh
 ```
