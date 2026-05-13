@@ -19,7 +19,7 @@ jobs:
     env:
       NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
       NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
-      GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+      GH_PAT: ${{ secrets.GH_PAT }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
     steps:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: git ユーザー設定
         run: |

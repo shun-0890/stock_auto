@@ -50,7 +50,7 @@
 ### STEP 0: 事前準備（初回のみ）
 GitHub リポジトリの Settings > Secrets and variables > Actions に以下を登録：
 - `ANTHROPIC_API_KEY` : Anthropic APIキー
-- `GITHUB_PAT`        : GitHub Personal Access Token
+- `GH_PAT`        : GitHub Personal Access Token
 - `NOTE_EMAIL`        : note.com ログインメールアドレス
 - `NOTE_PASSWORD`     : note.com パスワード
 
@@ -70,7 +70,7 @@ GitHub Actions が自動でデイリーリサーチを実行する。
 ### CCRセッションから手動実行する場合
 以下のコマンドでリサーチフローをSTEPごとに実行する：
 ```
-export GITHUB_PAT=＜token＞
+export GH_PAT=＜token＞
 bash scripts/run_daily.sh
 ```
 各STEPは別プロセスで実行され、完了ごとに自動でgit pushされる。

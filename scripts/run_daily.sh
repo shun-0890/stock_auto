@@ -4,9 +4,9 @@
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
-# GITHUB_PAT が設定されていれば git remote を自動設定
-if [ -n "${GITHUB_PAT}" ]; then
-    git remote set-url origin "https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git"
+# GH_PAT が設定されていれば git remote を自動設定
+if [ -n "${GH_PAT}" ]; then
+    git remote set-url origin "https://shun-0890:${GH_PAT}@github.com/shun-0890/stock_auto.git"
 fi
 
 GITHUB_OWNER="shun-0890"
@@ -71,8 +71,8 @@ git_push() {
 
 log_step "デイリーリサーチ開始：$DATE"
 
-if [ -z "${GITHUB_PAT}" ]; then
-    log_fail "GITHUB_PAT が未設定です。export GITHUB_PAT=<token> で環境変数を設定してください。"
+if [ -z "${GH_PAT}" ]; then
+    log_fail "GH_PAT が未設定です。export GH_PAT=<token> で環境変数を設定してください。"
     exit 1
 fi
 
@@ -220,7 +220,7 @@ PR_BODY="## デイリーリサーチ ${DATE}\n\n### 生成ファイル\n${FILE_L
 
 PR_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
     "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/pulls" \
-    -H "Authorization: Bearer ${GITHUB_PAT}" \
+    -H "Authorization: Bearer ${GH_PAT}" \
     -H "Accept: application/vnd.github+json" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     -d "$(jq -n \
