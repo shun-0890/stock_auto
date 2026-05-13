@@ -4,9 +4,6 @@
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
-# .env から環境変数を読み込む
-[ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
-
 # GITHUB_PAT が設定されていれば git remote を自動設定
 if [ -n "${GITHUB_PAT}" ]; then
     git remote set-url origin "https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git"
@@ -75,7 +72,7 @@ git_push() {
 log_step "デイリーリサーチ開始：$DATE"
 
 if [ -z "${GITHUB_PAT}" ]; then
-    log_fail "GITHUB_PAT が未設定です。.env に GITHUB_PAT を記載してください。"
+    log_fail "GITHUB_PAT が未設定です。export GITHUB_PAT=<token> で環境変数を設定してください。"
     exit 1
 fi
 

@@ -4,8 +4,9 @@
 #   bash scripts/post_to_note_local.sh YYYY-MM-DD
 #
 # 事前準備:
-#   pip install requests python-dotenv
-#   .env に NOTE_EMAIL / NOTE_PASSWORD を設定しておく
+#   pip install requests
+#   export NOTE_EMAIL=<email>
+#   export NOTE_PASSWORD=<password>
 
 DATE=${1:-$(date +%Y-%m-%d)}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

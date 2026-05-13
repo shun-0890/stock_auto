@@ -48,11 +48,11 @@
 ## デイリーリサーチの実行手順
 
 ### STEP 0: 事前準備
-`.env` に以下を記載する（初回のみ）：
+環境変数を設定する（セッション開始時に毎回実行）：
 ```
-NOTE_EMAIL=shun1320@gmail.com
-NOTE_PASSWORD=Ship1320
-GITHUB_PAT=＜GitHubのPersonal Access Token＞
+export NOTE_EMAIL=shun1320@gmail.com
+export NOTE_PASSWORD=Ship1320
+export GITHUB_PAT=＜GitHubのPersonal Access Token＞
 ```
 
 git のユーザー設定（初回のみ）：
@@ -72,4 +72,4 @@ watchlistが存在しない場合はスクリプトが自動で終了する。
 ## 重要な注意事項
 - すべての出力は日本語で行う
 - watchlistが存在しない場合はスクリプトが自動停止する
-- .env はコミット・プッシュしないこと
+- 認証情報は環境変数で管理し、ファイルにはコミットしないこと
