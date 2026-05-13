@@ -7,10 +7,13 @@
 # .env から環境変数を読み込む
 [ -f "$(dirname "$0")/../.env" ] && source "$(dirname "$0")/../.env"
 
-# GITHUB_PAT が設定されていれば git remote と gh CLI を自動設定
+# GITHUB_PAT が設定されていれば git remote を自動設定
 if [ -n "${GITHUB_PAT}" ]; then
     git remote set-url origin "https://shun-0890:${GITHUB_PAT}@github.com/shun-0890/stock_auto.git"
 fi
+
+GITHUB_OWNER="shun-0890"
+GITHUB_REPO="stock_auto"
 
 DATE=${1:-$(date +%Y-%m-%d)}
 BRANCH_DATE="${DATE//-/}"
@@ -71,15 +74,9 @@ git_push() {
 
 log_step "デイリーリサーチ開始：$DATE"
 
-# gh CLIのインストールと認証
-if ! which gh &>/dev/null; then
-    echo "  gh CLI が見つかりません。インストールします..."
-    sudo apt-get install -y gh &>/dev/null && log_success "gh CLI インストール完了" || log_fail "gh CLI インストール失敗"
-fi
-if [ -n "${GITHUB_PAT}" ]; then
-    gh auth login --with-token <<< "${GITHUB_PAT}" 2>/dev/null && log_success "gh 認証完了" || true
-elif ! gh auth status &>/dev/null; then
-    log_fail "gh 未認証。GITHUB_PAT 環境変数を設定するか、事前に gh auth login を実行してください。"
+if [ -z "${GITHUB_PAT}" ]; then
+    log_fail "GITHUB_PAT が未設定です。.env に GITHUB_PAT を記載してください。"
+    exit 1
 fi
 
 WATCHLIST="targets/${DATE}_watchlist.csv"
@@ -216,19 +213,29 @@ fi
 # -------------------------------------------------------
 
 log_step "PRを作成：${BRANCH} → main"
-PR_BODY="## デイリーリサーチ ${DATE}
 
-### 生成ファイル
-$(ls reports/${DATE}_*.md 2>/dev/null | while read f; do echo "- $(basename "$f")"; done)
+FILE_LIST=$(ls reports/${DATE}_*.md 2>/dev/null | while read f; do echo "- $(basename "$f")"; done)
+PR_BODY="## デイリーリサーチ ${DATE}\n\n### 生成ファイル\n${FILE_LIST}\n\n🤖 Generated with Claude Code"
 
-🤖 Generated with Claude Code"
+PR_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+    "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/pulls" \
+    -H "Authorization: Bearer ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    -d "$(jq -n \
+        --arg title "デイリーリサーチ: ${DATE}" \
+        --arg body "$(printf '%b' "${PR_BODY}")" \
+        --arg head "${BRANCH}" \
+        '{title: $title, body: $body, head: $head, base: "main"}')")
 
-gh pr create \
-    --title "デイリーリサーチ: ${DATE}" \
-    --body "${PR_BODY}" \
-    --base main \
-    --head "${BRANCH}" \
-    && log_success "PR作成完了" || log_fail "PR作成失敗（手動で作成してください）"
+HTTP_CODE=$(echo "${PR_RESPONSE}" | tail -1)
+PR_URL=$(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.html_url // empty')
+
+if [ "${HTTP_CODE}" = "201" ] && [ -n "${PR_URL}" ]; then
+    log_success "PR作成完了: ${PR_URL}"
+else
+    log_fail "PR作成失敗 (HTTP ${HTTP_CODE}): $(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.message // empty')"
+fi
 
 # スマホ通知
 curl -s -X POST https://ntfy.sh/stock-auto-shun1 \
