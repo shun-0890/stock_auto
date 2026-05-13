@@ -83,10 +83,14 @@ if [ ! -f "$WATCHLIST" ]; then
 fi
 log_success "watchlist確認: $WATCHLIST"
 
-# ブランチ作成 or チェックアウト
+# ブランチ作成 or チェックアウト（リモート含めて確認）
+git fetch origin "${BRANCH}" 2>/dev/null || true
 if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
     git checkout "${BRANCH}"
     log_success "既存ブランチにチェックアウト: ${BRANCH}"
+elif git show-ref --verify --quiet "refs/remotes/origin/${BRANCH}"; then
+    git checkout -b "${BRANCH}" --track "origin/${BRANCH}"
+    log_success "リモートブランチからチェックアウト: ${BRANCH}"
 else
     git checkout -b "${BRANCH}"
     log_success "ブランチ作成: ${BRANCH}"

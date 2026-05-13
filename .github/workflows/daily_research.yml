@@ -1,0 +1,52 @@
+name: デイリーリサーチ
+
+on:
+  push:
+    paths:
+      - 'targets/**_watchlist.csv'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '実行日付 (YYYY-MM-DD)。省略時は当日'
+        required: false
+        default: ''
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      NOTE_EMAIL: ${{ secrets.NOTE_EMAIL }}
+      NOTE_PASSWORD: ${{ secrets.NOTE_PASSWORD }}
+      GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_PAT }}
+
+      - name: git ユーザー設定
+        run: |
+          git config user.email shun1320@gmail.com
+          git config user.name shun-0890
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Claude CLI インストール
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: デイリーリサーチ実行
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then
+            bash scripts/run_daily.sh
+          else
+            bash scripts/run_daily.sh "$DATE"
+          fi

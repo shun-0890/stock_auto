@@ -47,13 +47,12 @@
 
 ## デイリーリサーチの実行手順
 
-### STEP 0: 事前準備
-環境変数を設定する（セッション開始時に毎回実行）：
-```
-export NOTE_EMAIL=shun1320@gmail.com
-export NOTE_PASSWORD=Ship1320
-export GITHUB_PAT=＜GitHubのPersonal Access Token＞
-```
+### STEP 0: 事前準備（初回のみ）
+GitHub リポジトリの Settings > Secrets and variables > Actions に以下を登録：
+- `ANTHROPIC_API_KEY` : Anthropic APIキー
+- `GITHUB_PAT`        : GitHub Personal Access Token
+- `NOTE_EMAIL`        : note.com ログインメールアドレス
+- `NOTE_PASSWORD`     : note.com パスワード
 
 git のユーザー設定（初回のみ）：
 ```
@@ -61,9 +60,17 @@ git config user.email shun1320@gmail.com
 git config user.name shun-0890
 ```
 
-### STEP 1: run_daily.sh を実行
+### STEP 1: watchlist を push してワークフローを起動
+`targets/YYYY-MM-DD_watchlist.csv` を作成して main ブランチに push すると、
+GitHub Actions が自動でデイリーリサーチを実行する。
+
+手動実行する場合は GitHub の Actions タブから `デイリーリサーチ` を選んで
+`Run workflow` を押す。
+
+### CCRセッションから手動実行する場合
 以下のコマンドでリサーチフローをSTEPごとに実行する：
 ```
+export GITHUB_PAT=＜token＞
 bash scripts/run_daily.sh
 ```
 各STEPは別プロセスで実行され、完了ごとに自動でgit pushされる。
