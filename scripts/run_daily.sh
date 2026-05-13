@@ -4,6 +4,12 @@
 #   bash scripts/run_daily.sh                  # 本日日付・未完了のSTEPから自動開始
 #   bash scripts/run_daily.sh 2026-04-24       # 日付指定
 
+# 認証情報を ~/.stock_auto_credentials から自動読み込み
+CREDENTIALS_FILE="${HOME}/.stock_auto_credentials"
+if [ -f "${CREDENTIALS_FILE}" ]; then
+    source "${CREDENTIALS_FILE}"
+fi
+
 # GH_PAT が設定されていれば git remote を自動設定
 if [ -n "${GH_PAT}" ]; then
     git remote set-url origin "https://shun-0890:${GH_PAT}@github.com/shun-0890/stock_auto.git"

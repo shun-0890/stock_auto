@@ -48,11 +48,15 @@
 ## デイリーリサーチの実行手順
 
 ### STEP 0: 事前準備（初回のみ）
-GitHub リポジトリの Settings > Secrets and variables > Actions に以下を登録：
-- `ANTHROPIC_API_KEY` : Anthropic APIキー
-- `GH_PAT`        : GitHub Personal Access Token
-- `NOTE_EMAIL`        : note.com ログインメールアドレス
-- `NOTE_PASSWORD`     : note.com パスワード
+認証ファイルをホームディレクトリに作成する（リポジトリ外なのでgitに入らない）：
+```
+cat > ~/.stock_auto_credentials << 'EOF'
+export GH_PAT=<GitHubのPersonal Access Token>
+export NOTE_EMAIL=shun1320@gmail.com
+export NOTE_PASSWORD=<note.comパスワード>
+EOF
+chmod 600 ~/.stock_auto_credentials
+```
 
 git のユーザー設定（初回のみ）：
 ```
@@ -70,7 +74,6 @@ GitHub Actions が自動でデイリーリサーチを実行する。
 ### CCRセッションから手動実行する場合
 以下のコマンドでリサーチフローをSTEPごとに実行する：
 ```
-export GH_PAT=＜token＞
 bash scripts/run_daily.sh
 ```
 各STEPは別プロセスで実行され、完了ごとに自動でgit pushされる。
