@@ -263,7 +263,7 @@ https://note.com/takuminatoushi/n/n63c9cb0d5219
 
 - （具体的アクションを箇条書きで）
 
-## 所感・判断
+## 本日の総評
 ```
 
 
