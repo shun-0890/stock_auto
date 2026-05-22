@@ -47,7 +47,8 @@ step_done() {
         2) [ -f "reports/${DATE}_screening.md" ] ;;
         3) [ -f "reports/${DATE}_evaluation.md" ] ;;
         4) ls reports/${DATE}_deepdive_*.md 2>/dev/null | grep -q . ;;
-        5) [ -f "reports/${DATE}_article_macro.md" ] && [ -f "reports/${DATE}_article_screening.md" ] ;;
+        5) [ -f "reports/${DATE}_article_macro.md" ] ;;
+        6) [ -f "reports/${DATE}_article_screening.md" ] ;;
     esac
 }
 
@@ -195,29 +196,49 @@ STEP 4（詳細調査）のみ実行してください。
 fi
 
 # -------------------------------------------------------
-# STEP 5：記事作成・note投稿
+# STEP 5：マクロ記事作成
 # -------------------------------------------------------
 
-log_step "STEP 5：記事作成"
+log_step "STEP 5：マクロ記事作成"
 if step_done 5; then
-    log_skip "記事ファイルは作成済み"
+    log_skip "reports/${DATE}_article_macro.md は作成済み"
 else
     step_done 4 || { log_fail "deepdiveファイルが存在しません。STEP 4から再実行してください。"; exit 1; }
     run_step 5 "実行日: ${DATE}
-STEP 5（記事作成）のみ実行してください。
+STEP 5（マクロ記事作成）のみ実行してください。
+
+前提ファイル:
+- reports/${DATE}_macro.md（作成済み）
+
+.claude/skills/article.md のスキル手順に従い、記事①（マクロ分析記事）のみを作成してください。
+- reports/${DATE}_article_macro.md を作成して終了してください。
+reports/${DATE}_article_screening.md は作成しないでください。他のSTEPも実行しないでください。" || { log_fail "STEP 5 失敗。処理を中断します。"; exit 1; }
+    log_success "STEP 5 完了"
+    git_push 5
+fi
+
+# -------------------------------------------------------
+# STEP 6：スクリーニング記事作成
+# -------------------------------------------------------
+
+log_step "STEP 6：スクリーニング記事作成"
+if step_done 6; then
+    log_skip "reports/${DATE}_article_screening.md は作成済み"
+else
+    step_done 5 || { log_fail "reports/${DATE}_article_macro.md が存在しません。STEP 5から再実行してください。"; exit 1; }
+    run_step 6 "実行日: ${DATE}
+STEP 6（スクリーニング記事作成）のみ実行してください。
 
 前提ファイル（すべて作成済み）:
-- reports/${DATE}_macro.md
 - reports/${DATE}_screening.md
 - reports/${DATE}_evaluation.md
 - reports/${DATE}_deepdive_*.md
 
-.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してください（note投稿は不要）。
-- reports/${DATE}_article_macro.md を作成
-- reports/${DATE}_article_screening.md を作成
-完了後に終了してください。他のSTEPは実行しないでください。" || { log_fail "STEP 5 失敗。記事ファイルの保存状況を確認してください。"; }
-    log_success "STEP 5 完了"
-    git_push 5
+.claude/skills/article.md のスキル手順に従い、記事②（銘柄スクリーニング記事）のみを作成してください。
+- reports/${DATE}_article_screening.md を作成して終了してください。
+reports/${DATE}_article_macro.md は作成しないでください。他のSTEPも実行しないでください。" || { log_fail "STEP 6 失敗。記事ファイルの保存状況を確認してください。"; }
+    log_success "STEP 6 完了"
+    git_push 6
 fi
 
 # -------------------------------------------------------
@@ -250,10 +271,10 @@ if [ "$NO_PR" = false ]; then
         log_fail "PR作成失敗 (HTTP ${HTTP_CODE}): $(echo "${PR_RESPONSE}" | head -n -1 | jq -r '.message // empty')"
     fi
 
-    NOTIFY_MSG="株式調査ルーチン完了！ PR作成まで完了 (${DATE})"
+    NOTIFY_MSG="株式調査ルーチン完了！ PR作成まで完了 (${DATE}) STEP1〜6"
 else
     log_skip "PR作成スキップ（--no-pr）"
-    NOTIFY_MSG="株式調査ルーチン完了！ 調査・記事作成まで完了 (${DATE})"
+    NOTIFY_MSG="株式調査ルーチン完了！ 調査・記事作成まで完了 (${DATE}) STEP1〜6"
 fi
 
 # スマホ通知
