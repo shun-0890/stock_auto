@@ -55,10 +55,11 @@ step_done() {
 run_step() {
     local step=$1
     local prompt=$2
+    local model=${3:-"claude-sonnet-4-6"}
 
     for i in $(seq 1 $MAX_RETRY); do
-        echo "  実行中 (試行 $i/$MAX_RETRY)..."
-        claude -p "$prompt"
+        echo "  実行中 (試行 $i/$MAX_RETRY) [model: $model]..."
+        claude --no-session-persistence --model "$model" -p "$prompt"
         if step_done $step; then
             return 0
         fi
@@ -121,7 +122,7 @@ STEP 1（マクロ分析）のみ実行してください。
 
 .claude/skills/macro.md のスキル手順に従い、${DATE} のマクロ分析を実施してください。
 結果を reports/${DATE}_macro.md に保存して終了してください。
-他のSTEPは実行しないでください。" || { log_fail "STEP 1 失敗。処理を中断します。"; exit 1; }
+他のSTEPは実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 1 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 1 完了"
     git_push 1
 fi
@@ -143,7 +144,7 @@ STEP 2（スクリーニング）のみ実行してください。
 
 .claude/skills/screening.md のスキル手順に従い、スクリーニングを実施してください。
 結果を reports/${DATE}_screening.md に保存して終了してください。
-他のSTEPは実行しないでください。" || { log_fail "STEP 2 失敗。処理を中断します。"; exit 1; }
+他のSTEPは実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 2 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 2 完了"
     git_push 2
 fi
@@ -166,7 +167,7 @@ STEP 3（銘柄評価）のみ実行してください。
 
 .claude/skills/evaluation.md のスキル手順に従い、スクリーニング選出銘柄を評価してください。
 結果を reports/${DATE}_evaluation.md に保存して終了してください。
-他のSTEPは実行しないでください。" || { log_fail "STEP 3 失敗。処理を中断します。"; exit 1; }
+他のSTEPは実行しないでください。" "claude-sonnet-4-6" || { log_fail "STEP 3 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 3 完了"
     git_push 3
 fi
@@ -190,7 +191,7 @@ STEP 4（詳細調査）のみ実行してください。
 
 .claude/skills/deep-dive.md のスキル手順に従い、evaluation.md の総合スコア上位2銘柄を詳細調査してください。
 各銘柄の結果を reports/${DATE}_deepdive_XXXX.md（XXXXは銘柄コード）に保存して終了してください。
-他のSTEPは実行しないでください。" || { log_fail "STEP 4 失敗。処理を中断します。"; exit 1; }
+他のSTEPは実行しないでください。" "claude-sonnet-4-6" || { log_fail "STEP 4 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 4 完了"
     git_push 4
 fi
@@ -212,7 +213,7 @@ STEP 5（マクロ記事作成）のみ実行してください。
 
 .claude/skills/article.md のスキル手順に従い、記事①（マクロ分析記事）のみを作成してください。
 - reports/${DATE}_article_macro.md を作成して終了してください。
-reports/${DATE}_article_screening.md は作成しないでください。他のSTEPも実行しないでください。" || { log_fail "STEP 5 失敗。処理を中断します。"; exit 1; }
+reports/${DATE}_article_screening.md は作成しないでください。他のSTEPも実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 5 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 5 完了"
     git_push 5
 fi
@@ -236,9 +237,13 @@ STEP 6（スクリーニング記事作成）のみ実行してください。
 
 .claude/skills/article.md のスキル手順に従い、記事②（銘柄スクリーニング記事）のみを作成してください。
 - reports/${DATE}_article_screening.md を作成して終了してください。
-reports/${DATE}_article_macro.md は作成しないでください。他のSTEPも実行しないでください。" || { log_fail "STEP 6 失敗。記事ファイルの保存状況を確認してください。"; }
+reports/${DATE}_article_macro.md は作成しないでください。他のSTEPも実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 6 失敗。記事ファイルの保存状況を確認してください。"; }
     log_success "STEP 6 完了"
     git_push 6
+    curl -s -X POST https://ntfy.sh/stock-auto-shun1 \
+        -H "Content-Type: text/plain; charset=utf-8" \
+        -d "【Claude Code】デイリー調査完了 (${DATE})" \
+        && log_success "STEP 6 完了通知送信" || log_fail "通知送信失敗"
 fi
 
 # -------------------------------------------------------
