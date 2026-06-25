@@ -1,0 +1,504 @@
+{
+  "date": "2026-06-24",
+  "data_collection_timestamp": "2026-06-25T00:00:00Z",
+  "note": "日本時間2026-06-24のマクロ分析データ。各フィールドに値を入力してください。",
+  "us_market": {
+    "dow_jones": {
+      "symbol": "^DJI",
+      "closing_value": null,
+      "value_unit": "USD",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "change_week": null,
+      "change_week_percentage": null,
+      "previous_day": "2026-06-23"
+    },
+    "sp500": {
+      "symbol": "^GSPC",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "change_week": null,
+      "change_week_percentage": null,
+      "previous_day": "2026-06-23"
+    },
+    "nasdaq": {
+      "symbol": "^IXIC",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "change_week": null,
+      "change_week_percentage": null,
+      "previous_day": "2026-06-23"
+    },
+    "russell2000": {
+      "symbol": "^RUT",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "change_week": null,
+      "change_week_percentage": null
+    },
+    "sox_semiconductor": {
+      "symbol": "^SOX",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "change_week": null,
+      "change_week_percentage": null,
+      "note": "半導体セクター指数"
+    },
+    "vix": {
+      "symbol": "^VIX",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "description": "恐怖指数（Volatility Index）"
+    }
+  },
+  "japan_market": {
+    "nikkei225": {
+      "symbol": "0225.SA",
+      "closing_value": null,
+      "value_unit": "JPY",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "high": null,
+      "low": null,
+      "date": "2026-06-24"
+    },
+    "topix": {
+      "symbol": "^N225",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "date": "2026-06-24"
+    },
+    "growth250": {
+      "symbol": "Growth250",
+      "closing_value": null,
+      "value_unit": "points",
+      "change_from_previous_day": null,
+      "change_percentage": null,
+      "date": "2026-06-24"
+    },
+    "prime_market": {
+      "trading_volume": null,
+      "trading_volume_unit": "JPY",
+      "advancing_stocks": null,
+      "declining_stocks": null,
+      "unchanged_stocks": null,
+      "date": "2026-06-24"
+    },
+    "growth_market": {
+      "trading_volume": null,
+      "trading_volume_unit": "JPY",
+      "advancing_stocks": null,
+      "declining_stocks": null,
+      "unchanged_stocks": null,
+      "date": "2026-06-24"
+    }
+  },
+  "forex_commodities": {
+    "usd_jpy": {
+      "pair": "USD/JPY",
+      "level": null,
+      "unit": "JPY",
+      "change": null,
+      "direction": null,
+      "impact": "輸出企業、インフレ圧力への影響"
+    },
+    "eur_jpy": {
+      "pair": "EUR/JPY",
+      "level": null,
+      "unit": "JPY",
+      "change": null,
+      "direction": null,
+      "impact": "欧州向け輸出企業への影響"
+    },
+    "eur_usd": {
+      "pair": "EUR/USD",
+      "level": null,
+      "unit": "USD",
+      "change": null,
+      "direction": null
+    },
+    "wti_oil": {
+      "commodity": "WTI原油",
+      "level": null,
+      "unit": "USD/bbl",
+      "change": null,
+      "change_percentage": null,
+      "direction": null,
+      "impact": "エネルギー株、製造コストへの影響"
+    },
+    "brent_oil": {
+      "commodity": "ブレント原油",
+      "level": null,
+      "unit": "USD/bbl",
+      "change": null,
+      "direction": null,
+      "note": "中東リスク・地政学プレミアムを反映"
+    },
+    "gold": {
+      "commodity": "ゴールド",
+      "level": null,
+      "unit": "USD/oz",
+      "change": null,
+      "direction": null,
+      "impact": "リスク回避・インフレヘッジ需要"
+    },
+    "copper": {
+      "commodity": "銅",
+      "level": null,
+      "unit": "USD/lb",
+      "level_per_ton": null,
+      "unit_ton": "USD/t",
+      "change": null,
+      "change_percentage": null,
+      "direction": null,
+      "impact": "中国需要、グリーン転換ニーズ"
+    },
+    "natural_gas": {
+      "commodity": "天然ガス",
+      "level": null,
+      "unit": "USD/MMBtu",
+      "change": null,
+      "direction": null,
+      "note": "オプション"
+    }
+  },
+  "interest_rates": {
+    "us_10y_yield": {
+      "instrument": "米10年国債利回り",
+      "symbol": "^TNX",
+      "level": null,
+      "unit": "%",
+      "change_from_previous_day": null,
+      "change_basis_points": null,
+      "note": "年初来最高水準との比較"
+    },
+    "us_2y_yield": {
+      "instrument": "米2年国債利回り",
+      "level": null,
+      "unit": "%",
+      "change": null
+    },
+    "us_10y_minus_2y_spread": {
+      "spread_name": "米10年−2年スプレッド",
+      "level": null,
+      "unit": "%",
+      "status": null,
+      "note": "逆イールド状態の有無"
+    },
+    "japan_10y_yield": {
+      "instrument": "日本10年国債利回り",
+      "level": null,
+      "unit": "%",
+      "change_from_previous_day": null,
+      "change_basis_points": null,
+      "historical_note": "29年ぶり高水準との比較"
+    },
+    "us_japan_rate_spread": {
+      "description": "日米金利差（10年）",
+      "level": null,
+      "unit": "bp（ベーシスポイント）",
+      "impact": "ドル高・円安の構造的要因"
+    }
+  },
+  "central_bank_policy": {
+    "fed": {
+      "institution": "FRB（米連邦準備制度理事会）",
+      "policy_rate": null,
+      "policy_rate_range": "現行水準",
+      "next_rate_cut_expectation": null,
+      "policy_tone": null,
+      "note": "タカ派 / ハト派 / ニュートラル",
+      "concern_points": [
+        "コストプッシュインフレ",
+        "スタグフレーションリスク",
+        "長期利上げ可能性"
+      ],
+      "key_indicators": [
+        "コアPCE（インフレ指標）",
+        "ISM製造業PMI",
+        "雇用統計（非農業部門就業者数）"
+      ]
+    },
+    "boj": {
+      "institution": "日本銀行（BOJ）",
+      "policy_rate": null,
+      "policy_rate_unit": "%",
+      "policy_direction": null,
+      "note": "引き締め / 据え置き / 緩和",
+      "rate_hike_outlook": null,
+      "concern_points": [
+        "エネルギー高騰の波及",
+        "賃金・サービス価格への二次影響",
+        "為替介入リスク（160円接近）"
+      ],
+      "recent_meeting_date": "2026-06-XX"
+    },
+    "ecb": {
+      "institution": "欧州中央銀行（ECB）",
+      "policy_stance": null,
+      "note": "オプション"
+    }
+  },
+  "inflation_data": {
+    "us_cpi": {
+      "indicator": "CPI（消費者物価指数）",
+      "latest_value": null,
+      "unit": "%",
+      "month": "2026-05",
+      "change_from_previous_month": null,
+      "year_over_year": null
+    },
+    "us_core_cpi": {
+      "indicator": "コアCPI（食料・エネルギー除外）",
+      "latest_value": null,
+      "unit": "%",
+      "month": "2026-05",
+      "change": null
+    },
+    "us_pce": {
+      "indicator": "PCE（個人消費支出デフレータ）",
+      "latest_value": null,
+      "unit": "%",
+      "month": "2026-05",
+      "change": null
+    },
+    "us_core_pce": {
+      "indicator": "コアPCE",
+      "latest_value": null,
+      "unit": "%",
+      "month": "2026-05",
+      "change": null,
+      "note": "FRBの重視指標"
+    },
+    "japan_cpi": {
+      "indicator": "日本CPI",
+      "latest_value": null,
+      "unit": "%",
+      "month": "2026-05",
+      "change": null,
+      "note": "全国生活用品・サービス価格指数"
+    }
+  },
+  "geopolitical_risks": {
+    "us_china_relations": {
+      "risk_area": "米中関係",
+      "current_status": null,
+      "wave_factor": "影響度★★★",
+      "detail": null,
+      "impact_on_stocks": [
+        "AI・半導体関連",
+        "供給チェーン"
+      ]
+    },
+    "iran_middle_east": {
+      "risk_area": "イラン・中東紛争",
+      "current_status": null,
+      "wave_factor": "影響度★★★★",
+      "detail": null,
+      "impact_on_stocks": [
+        "原油・エネルギー高騰",
+        "スタグフレーション",
+        "ホルムズ海峡リスク"
+      ]
+    },
+    "russia_ukraine": {
+      "risk_area": "ロシア・ウクライナ",
+      "current_status": null,
+      "wave_factor": "影響度★★",
+      "detail": null,
+      "impact_on_stocks": [
+        "防衛関連株",
+        "欧州防衛費増強"
+      ]
+    },
+    "taiwan_situation": {
+      "risk_area": "台湾海峡",
+      "current_status": null,
+      "wave_factor": "影響度★★",
+      "detail": null,
+      "note": "オプション"
+    },
+    "other_risks": {
+      "items": [],
+      "note": "その他マクロリスク"
+    }
+  },
+  "market_sentiment": {
+    "vix_index": {
+      "indicator": "VIX（恐怖指数）",
+      "current_level": null,
+      "unit": "points",
+      "interpretation": null,
+      "note": "低 / 通常 / 高"
+    },
+    "fear_greed_index": {
+      "indicator": "Fear & Greed Index",
+      "current_level": null,
+      "unit": "score",
+      "evaluation": null,
+      "note": "Fear / Neutral / Greed"
+    },
+    "investor_flows": {
+      "foreign_investors_japan": null,
+      "individual_investors": null,
+      "positioning": null,
+      "note": "利益確定 / 買い越し / 様子見"
+    },
+    "credit_flow": {
+      "margin_debit_balance": null,
+      "interpretation": null,
+      "note": "信用買い残高"
+    },
+    "short_interest": {
+      "level": null,
+      "pressure_sectors": [],
+      "note": "空売り比率・圧力セクター"
+    }
+  },
+  "key_themes": {
+    "themes": [
+      {
+        "theme": "AI・半導体",
+        "region": "米国",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "NVDA",
+          "AMD",
+          "TSMC"
+        ]
+      },
+      {
+        "theme": "AI・半導体",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "東京エレクトロン",
+          "レーザーテック"
+        ]
+      },
+      {
+        "theme": "防衛・宇宙",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "三菱重工",
+          "川崎重工",
+          "IHI"
+        ]
+      },
+      {
+        "theme": "エネルギー",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "INPEX",
+          "出光",
+          "ENEOS"
+        ]
+      },
+      {
+        "theme": "銀行・保険",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "三菱UFJ",
+          "三井住友",
+          "東京海上"
+        ]
+      },
+      {
+        "theme": "グロース・中小型",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "note": "出遅れ修正の動き"
+      },
+      {
+        "theme": "円安恩恵（輸出）",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "トヨタ",
+          "ソニー",
+          "精密機器全般"
+        ]
+      },
+      {
+        "theme": "REIT・不動産",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "note": "金利上昇による負圧力"
+      },
+      {
+        "theme": "フィジカルAI・ロボティクス",
+        "region": "日本",
+        "strength": null,
+        "background": null,
+        "key_stocks": [
+          "ファナック",
+          "安川電機",
+          "キーエンス"
+        ]
+      }
+    ]
+  },
+  "market_assessment": {
+    "risk_on_off": {
+      "assessment": null,
+      "note": "リスクオン / リスクオフ / 中立・二極化",
+      "reasoning": null
+    },
+    "yen_trend": {
+      "assessment": null,
+      "note": "円安 / 円高 / 横ばい",
+      "level": null
+    },
+    "interest_rate_environment": {
+      "assessment": null,
+      "note": "引き締め長期化 / 緩和方向 / 不透明"
+    },
+    "commodity_environment": {
+      "assessment": null,
+      "note": "エネルギー高騰 / 軟調 / 横ばい"
+    },
+    "favorable_sectors": [],
+    "unfavorable_sectors": [],
+    "overall_summary": null
+  },
+  "data_sources": [
+    "Yahoo Finance",
+    "Bloomberg",
+    "Reuters",
+    "日本経済新聞",
+    "株式新聞",
+    "日経CNBC",
+    "Trading Economics",
+    "CME FedWatch",
+    "Fear & Greed Index",
+    "その他信頼できる金融データソース"
+  ],
+  "notes": {
+    "data_quality": "手動入力時は複数ソースで確認を推奨",
+    "update_frequency": "営業日ごと（日本時間終場後）",
+    "next_update_scheduled": "2026-06-25"
+  }
+}
