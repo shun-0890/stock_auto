@@ -141,7 +141,7 @@ if ($Step -le 1) {
 実行日: $Date
 STEP 1（マクロ分析）のみ実行してください。
 
-.claude/skills/macro.md のスキル手順に従い、${Date} のマクロ分析を実施してください。
+.claude/skills/macro/SKILL.md のスキル手順に従い、${Date} のマクロ分析を実施してください。
 結果を reports/${Date}_macro.md に保存して終了してください。
 他のSTEPは実行しないでください。
 "@
@@ -172,7 +172,7 @@ STEP 2（スクリーニング）のみ実行してください。
 前提ファイル: reports/${Date}_macro.md（作成済み）
 対象watchlist: targets/${Date}_watchlist.csv
 
-.claude/skills/screening.md のスキル手順に従い、スクリーニングを実施してください。
+.claude/skills/screening/SKILL.md のスキル手順に従い、スクリーニングを実施してください。
 結果を reports/${Date}_screening.md に保存して終了してください。
 他のSTEPは実行しないでください。
 "@
@@ -204,7 +204,7 @@ STEP 3（銘柄評価）のみ実行してください。
 - reports/${Date}_macro.md（作成済み）
 - reports/${Date}_screening.md（作成済み）
 
-.claude/skills/evaluation.md のスキル手順に従い、スクリーニング選出銘柄を評価してください。
+.claude/skills/evaluation/SKILL.md のスキル手順に従い、スクリーニング選出銘柄を評価してください。
 結果を reports/${Date}_evaluation.md に保存して終了してください。
 他のSTEPは実行しないでください。
 "@
@@ -237,7 +237,7 @@ STEP 4（詳細調査）のみ実行してください。
 - reports/${Date}_screening.md（作成済み）
 - reports/${Date}_evaluation.md（作成済み）
 
-.claude/skills/deep-dive.md のスキル手順に従い、evaluation.md の総合スコア上位2銘柄を詳細調査してください。
+.claude/skills/deep-dive/SKILL.md のスキル手順に従い、evaluation.md の総合スコア上位2銘柄を詳細調査してください。
 各銘柄の結果を reports/${Date}_deepdive_XXXX.md（XXXXは銘柄コード）に保存して終了してください。
 他のSTEPは実行しないでください。
 "@
@@ -271,7 +271,7 @@ STEP 5（記事作成）のみ実行してください。
 - reports/${Date}_evaluation.md
 - reports/${Date}_deepdive_*.md
 
-.claude/skills/article.md のスキル手順に従い、2種類の記事を作成・保存してください。
+.claude/skills/article/SKILL.md のスキル手順に従い、2種類の記事を作成・保存してください。
 - reports/${Date}_article_macro.md を作成
 - reports/${Date}_article_screening.md を作成
 note投稿は行わないでください。完了後に終了してください。他のSTEPは実行しないでください。

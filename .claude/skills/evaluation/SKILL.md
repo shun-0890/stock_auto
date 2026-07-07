@@ -6,7 +6,7 @@
 
 `reports/YYYY-MM-DD_screening.md`の最新日付でスクリーニングされた各銘柄を以下の4軸で評価し、それぞれ5段階（★1〜★5）で採点する。
 また、下記評価軸はAeroEdge：7409の成長に倣った評価軸。
-※AeroEdge：7409の構造的成長ストーリーの定義・参考事例は `.claude/skills/references/aeroedge_7409.md` を参照すること。
+※AeroEdge：7409の構造的成長ストーリーの定義・参考事例は `.claude/skills/evaluation/references/aeroedge_7409.md` を参照すること。
 
 ### 軸1：ビジネスモデルの根本的進化
 - ビジネスモデルが根本的に進化しているか（単なる値上げ・コスト削減・一過性のニュースによる株価上昇でない）

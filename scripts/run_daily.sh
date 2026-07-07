@@ -120,7 +120,7 @@ else
     run_step 1 "実行日: ${DATE}
 STEP 1（マクロ分析）のみ実行してください。
 
-.claude/skills/macro.md のスキル手順に従い、${DATE} のマクロ分析を実施してください。
+.claude/skills/macro/SKILL.md のスキル手順に従い、${DATE} のマクロ分析を実施してください。
 結果を reports/${DATE}_macro.md に保存して終了してください。
 他のSTEPは実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 1 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 1 完了"
@@ -142,7 +142,7 @@ STEP 2（スクリーニング）のみ実行してください。
 前提ファイル: reports/${DATE}_macro.md（作成済み）
 対象watchlist: targets/${DATE}_watchlist.csv
 
-.claude/skills/screening.md のスキル手順に従い、スクリーニングを実施してください。
+.claude/skills/screening/SKILL.md のスキル手順に従い、スクリーニングを実施してください。
 結果を reports/${DATE}_screening.md に保存して終了してください。
 他のSTEPは実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 2 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 2 完了"
@@ -165,7 +165,7 @@ STEP 3（銘柄評価）のみ実行してください。
 - reports/${DATE}_macro.md（作成済み）
 - reports/${DATE}_screening.md（作成済み）
 
-.claude/skills/evaluation.md のスキル手順に従い、スクリーニング選出銘柄を評価してください。
+.claude/skills/evaluation/SKILL.md のスキル手順に従い、スクリーニング選出銘柄を評価してください。
 結果を reports/${DATE}_evaluation.md に保存して終了してください。
 他のSTEPは実行しないでください。" "claude-sonnet-4-6" || { log_fail "STEP 3 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 3 完了"
@@ -189,7 +189,7 @@ STEP 4（詳細調査）のみ実行してください。
 - reports/${DATE}_screening.md（作成済み）
 - reports/${DATE}_evaluation.md（作成済み）
 
-.claude/skills/deep-dive.md のスキル手順に従い、evaluation.md の総合スコア上位2銘柄を詳細調査してください。
+.claude/skills/deep-dive/SKILL.md のスキル手順に従い、evaluation.md の総合スコア上位2銘柄を詳細調査してください。
 各銘柄の結果を reports/${DATE}_deepdive_XXXX.md（XXXXは銘柄コード）に保存して終了してください。
 他のSTEPは実行しないでください。" "claude-sonnet-4-6" || { log_fail "STEP 4 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 4 完了"
@@ -211,7 +211,7 @@ STEP 5（マクロ記事作成）のみ実行してください。
 前提ファイル:
 - reports/${DATE}_macro.md（作成済み）
 
-.claude/skills/article.md のスキル手順に従い、記事①（マクロ分析記事）のみを作成してください。
+.claude/skills/article/SKILL.md のスキル手順に従い、記事①（マクロ分析記事）のみを作成してください。
 - reports/${DATE}_article_macro.md を作成して終了してください。
 reports/${DATE}_article_screening.md は作成しないでください。他のSTEPも実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 5 失敗。処理を中断します。"; exit 1; }
     log_success "STEP 5 完了"
@@ -235,7 +235,7 @@ STEP 6（スクリーニング記事作成）のみ実行してください。
 - reports/${DATE}_evaluation.md
 - reports/${DATE}_deepdive_*.md
 
-.claude/skills/article.md のスキル手順に従い、記事②（銘柄スクリーニング記事）のみを作成してください。
+.claude/skills/article/SKILL.md のスキル手順に従い、記事②（銘柄スクリーニング記事）のみを作成してください。
 - reports/${DATE}_article_screening.md を作成して終了してください。
 reports/${DATE}_article_macro.md は作成しないでください。他のSTEPも実行しないでください。" "claude-haiku-4-5-20251001" || { log_fail "STEP 6 失敗。記事ファイルの保存状況を確認してください。"; }
     log_success "STEP 6 完了"
